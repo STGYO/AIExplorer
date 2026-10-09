@@ -1,4 +1,5 @@
 using AIExplorer.Core.Settings;
+using AIExplorer_App.Localization;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
@@ -21,9 +22,26 @@ public sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         ApplyWindowIcon();
+        ApplyLocalization();
+        AppLocalizer.Instance.LanguageChanged += OnLanguageChanged;
 
         ApplyDefaultWindowBounds();
         RootFrame.Navigate(typeof(MainPage), secondary);
+    }
+
+    private void OnLanguageChanged(object? sender, EventArgs e)
+    {
+        ApplyLocalization();
+        if (RootFrame.Content is FrameworkElement element)
+        {
+            VisualLocalizer.Apply(element);
+        }
+    }
+
+    private void ApplyLocalization()
+    {
+        Title = AppLocalizer.Instance.Get("App_Title");
+        AppTitleText.Text = AppLocalizer.Instance.Get("App_Title");
     }
 
     private void ApplyWindowIcon()

@@ -1,6 +1,7 @@
 using AIExplorer.Core.Extensions;
 using AIExplorer.Core.Settings;
 using AIExplorer.Infrastructure;
+using AIExplorer_App.Localization;
 using AIExplorer_App.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -92,6 +93,12 @@ public partial class App : Application
 
         var settings = _services.GetRequiredService<ISettingsService>();
         await settings.LoadAsync();
+        var originalLanguage = settings.Features.Language;
+        settings.Features.Language = AppLocalizer.Instance.ApplyLanguage(settings.Features.Language);
+        if (!string.Equals(settings.Features.Language, originalLanguage, StringComparison.OrdinalIgnoreCase))
+        {
+            await settings.SaveAsync();
+        }
 
         Window = new MainWindow();
         TrackWindow(Window);

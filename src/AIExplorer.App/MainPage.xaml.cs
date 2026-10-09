@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using AIExplorer_App.ViewModels;
 using AIExplorer_App.Views;
+using AIExplorer_App.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
@@ -121,6 +122,7 @@ public sealed partial class MainPage : Page
         TerminalPaneHost.ActiveDirectoryProvider = GetActiveFolderPath;
         TerminalPaneHost.CollapseRequested += OnTerminalCollapseRequested;
         WireTabTearDragFeedback();
+        AppLocalizer.Instance.LanguageChanged += (_, _) => ApplyLocalization();
     }
 
     /// <summary>内容区接受标签拖放为 Move，避免出现 stop 图标，并提示「在新窗口打开」。</summary>
@@ -248,7 +250,10 @@ public sealed partial class MainPage : Page
         DisableTabStripTransitions();
         ShowActiveTabContent();
         RefreshActivePaneChrome();
+        ApplyLocalization();
     }
+
+    private void ApplyLocalization() => VisualLocalizer.Apply(this);
 
     /// <summary>
     /// 关掉标签条入场/重排动画（TabView 本身无 ItemContainerTransitions API）。
@@ -4483,6 +4488,7 @@ public sealed partial class MainPage : Page
     /// <summary>界面下半部居中提示，约 1s 后缓缓淡出。</summary>
     public void ShowActionToast(string message)
     {
+        message = AppLocalizer.Instance.TranslateLiteral(message);
         if (string.IsNullOrWhiteSpace(message))
         {
             return;

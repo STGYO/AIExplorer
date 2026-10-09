@@ -1,4 +1,5 @@
 using AIExplorer_App.ViewModels;
+using AIExplorer_App.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -15,6 +16,13 @@ public sealed partial class SettingsPage : Page
         InitializeComponent();
         DataContext = ViewModel;
         ViewModel.Reload();
+        Loaded += (_, _) => ApplyLocalization();
+        AppLocalizer.Instance.LanguageChanged += (_, _) => ApplyLocalization();
+    }
+
+    private void ApplyLocalization()
+    {
+        VisualLocalizer.Apply(this);
     }
 
     private void OnBackClick(object sender, RoutedEventArgs e)
@@ -32,13 +40,15 @@ public sealed partial class SettingsPage : Page
     private async void OnSaveClick(object sender, RoutedEventArgs e)
     {
         await ViewModel.SaveCommand.ExecuteAsync(null);
+        LanguageAppliedText.Visibility = Visibility.Visible;
         var dialog = new ContentDialog
         {
-            Title = "已保存",
-            Content = "设置已写入。部分扩展开关将在下次启动或重新初始化后生效。",
-            CloseButtonText = "确定",
+            Title = AppLocalizer.Instance.Get("Settings_Saved_Title"),
+            Content = AppLocalizer.Instance.Get("Settings_Saved_Content"),
+            CloseButtonText = AppLocalizer.Instance.Get("Settings_Close"),
             XamlRoot = XamlRoot,
         };
+        VisualLocalizer.LocalizeDialog(dialog);
         await dialog.ShowAsync();
     }
 }

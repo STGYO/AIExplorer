@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using AIExplorer.Core.Files;
+using AIExplorer_App.Localization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
 
@@ -90,12 +91,12 @@ public partial class FolderTreeNode : ObservableObject
         var time = local.ToString("HH:mm");
         if (local.Date == now.Date)
         {
-            return $"今天 {time}";
+            return AppLocalizer.Instance.Format("Nav_Today", time);
         }
 
         if (local.Date == now.Date.AddDays(-1))
         {
-            return $"昨天 {time}";
+            return AppLocalizer.Instance.Format("Nav_Yesterday", time);
         }
 
         if (local.Year == now.Year)
@@ -311,15 +312,15 @@ public partial class NavigationPaneViewModel : ObservableObject
         QuickAccessRoots.Clear();
         TreeRoots.Clear();
 
-        AddSpecial("桌面", "\uE8FC", Environment.SpecialFolder.Desktop);
-        AddSpecial("文档", "\uE8A5", Environment.SpecialFolder.MyDocuments);
-        AddSpecial("下载", "\uE896", Environment.SpecialFolder.UserProfile, subPath: "Downloads");
-        AddSpecial("图片", "\uEB9F", Environment.SpecialFolder.MyPictures);
-        AddSpecial("音乐", "\uEC4F", Environment.SpecialFolder.MyMusic);
-        AddSpecial("视频", "\uE714", Environment.SpecialFolder.MyVideos);
-        AddSpecial("主文件夹", "\uE77B", Environment.SpecialFolder.UserProfile);
+        AddSpecial(AppLocalizer.Instance.Get("Nav_Desktop"), "\uE8FC", Environment.SpecialFolder.Desktop);
+        AddSpecial(AppLocalizer.Instance.Get("Nav_Documents"), "\uE8A5", Environment.SpecialFolder.MyDocuments);
+        AddSpecial(AppLocalizer.Instance.Get("Nav_Downloads"), "\uE896", Environment.SpecialFolder.UserProfile, subPath: "Downloads");
+        AddSpecial(AppLocalizer.Instance.Get("Nav_Pictures"), "\uEB9F", Environment.SpecialFolder.MyPictures);
+        AddSpecial(AppLocalizer.Instance.Get("Nav_Music"), "\uEC4F", Environment.SpecialFolder.MyMusic);
+        AddSpecial(AppLocalizer.Instance.Get("Nav_Videos"), "\uE714", Environment.SpecialFolder.MyVideos);
+        AddSpecial(AppLocalizer.Instance.Get("Nav_Home"), "\uE77B", Environment.SpecialFolder.UserProfile);
 
-        TreeRoots.Add(FolderTreeNode.CreateSectionHeader("此电脑"));
+        TreeRoots.Add(FolderTreeNode.CreateSectionHeader(AppLocalizer.Instance.Get("Nav_ThisPc")));
         foreach (var drive in DriveInfo.GetDrives().Where(d => d.IsReady && d.DriveType != DriveType.Network).OrderBy(d => d.Name))
         {
             try
@@ -338,13 +339,13 @@ public partial class NavigationPaneViewModel : ObservableObject
             }
         }
 
-        TreeRoots.Add(FolderTreeNode.CreateSectionHeader("网络"));
+        TreeRoots.Add(FolderTreeNode.CreateSectionHeader(AppLocalizer.Instance.Get("Nav_Network")));
         foreach (var drive in DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Network && d.IsReady).OrderBy(d => d.Name))
         {
             try
             {
                 var label = string.IsNullOrWhiteSpace(drive.VolumeLabel)
-                    ? $"网络驱动器 ({drive.Name.TrimEnd('\\')})"
+                    ? $"{AppLocalizer.Instance.Get("Drive_Network")} ({drive.Name.TrimEnd('\\')})"
                     : $"{drive.VolumeLabel} ({drive.Name.TrimEnd('\\')})";
                 TreeRoots.Add(FolderTreeNode.CreateExpandable(
                     label,
@@ -358,8 +359,8 @@ public partial class NavigationPaneViewModel : ObservableObject
             }
         }
 
-        TreeRoots.Add(FolderTreeNode.CreateLeaf("网络邻居", @"\\", "\uE8CE"));
-        Items.Add(new NavigationItemViewModel("网络邻居", "\uE8CE", NavItemKind.Network, @"\\"));
+        TreeRoots.Add(FolderTreeNode.CreateLeaf(AppLocalizer.Instance.Get("Nav_NetworkNeighbors"), @"\\", "\uE8CE"));
+        Items.Add(new NavigationItemViewModel(AppLocalizer.Instance.Get("Nav_NetworkNeighbors"), "\uE8CE", NavItemKind.Network, @"\\"));
 
         RebuildHistorySection();
         RebuildRailItems();
@@ -555,7 +556,7 @@ public partial class NavigationPaneViewModel : ObservableObject
         {
             var node = TreeRoots[i];
             if (node.IsRecentHistory ||
-                (node.IsSectionHeader && string.Equals(node.Name, "历史访问", StringComparison.Ordinal)))
+                (node.IsSectionHeader && string.Equals(node.Name, AppLocalizer.Instance.Get("Nav_Recent"), StringComparison.Ordinal)))
             {
                 TreeRoots.RemoveAt(i);
             }
@@ -566,7 +567,7 @@ public partial class NavigationPaneViewModel : ObservableObject
             return;
         }
 
-        TreeRoots.Add(FolderTreeNode.CreateSectionHeader("历史访问"));
+        TreeRoots.Add(FolderTreeNode.CreateSectionHeader(AppLocalizer.Instance.Get("Nav_Recent")));
         foreach (var entry in _recentPaths.OrderByDescending(e => e.AccessedAt))
         {
             TreeRoots.Add(FolderTreeNode.CreateRecent(entry.Path, entry.AccessedAt));
@@ -874,10 +875,10 @@ public partial class NavigationPaneViewModel : ObservableObject
 
     private static string DriveTypeLabel(DriveType type) => type switch
     {
-        DriveType.Removable => "可移动磁盘",
-        DriveType.Network => "网络驱动器",
-        DriveType.CDRom => "光盘",
-        DriveType.Ram => "RAM 磁盘",
-        _ => "本地磁盘",
+        DriveType.Removable => AppLocalizer.Instance.Get("Drive_Removable"),
+        DriveType.Network => AppLocalizer.Instance.Get("Drive_Network"),
+        DriveType.CDRom => AppLocalizer.Instance.Get("Drive_Cd"),
+        DriveType.Ram => AppLocalizer.Instance.Get("Drive_Ram"),
+        _ => AppLocalizer.Instance.Get("Drive_Local"),
     };
 }

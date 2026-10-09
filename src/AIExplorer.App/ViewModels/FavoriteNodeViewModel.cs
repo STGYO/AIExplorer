@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using AIExplorer.Core.Favorites;
+using AIExplorer_App.Localization;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AIExplorer_App.ViewModels;
@@ -38,7 +39,7 @@ public partial class FavoriteNodeViewModel : ObservableObject
     // 分组用填充文件夹 + 紫罗兰色，收藏项用实心星 + 金色，明显区别于文件列表的黄色文件夹
     public string IconGlyph => IsGroup ? "\uE8B7" : "\uE735";
     public Microsoft.UI.Xaml.Media.SolidColorBrush GlyphBrush => IsGroup ? IconBrushes.FavoriteGroup : IconBrushes.Favorite;
-    public string Subtitle => IsGroup ? $"{Model.Children.Count} 项" : (Path ?? string.Empty);
+    public string Subtitle => IsGroup ? AppLocalizer.Instance.Format("Favorites_ItemsCount", Model.Children.Count) : (Path ?? string.Empty);
 
     public FavoriteNodeViewModel AddGroup(string name)
     {

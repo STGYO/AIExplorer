@@ -43,6 +43,9 @@ public sealed class FeatureFlags
 
     /// <summary>窗口背景：Mica / Acrylic / None（纯色）</summary>
     public string WindowBackdrop { get; set; } = "Mica";
+
+    /// <summary>应用界面语言（默认 en-US）。</summary>
+    public string Language { get; set; } = "en-US";
 }
 
 /// <summary>窗口背景选项（与设置页一致）。</summary>

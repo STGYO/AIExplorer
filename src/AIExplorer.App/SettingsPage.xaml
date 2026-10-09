@@ -23,6 +23,23 @@
 
         <ScrollViewer Grid.Row="1">
             <StackPanel Spacing="16" MaxWidth="720" HorizontalAlignment="Left">
+                <TextBlock Text="常规" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="语言" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                <TextBlock
+                    Opacity="0.7"
+                    TextWrapping="Wrap"
+                    Text="选择 AIExplorer 使用的显示语言。" />
+                <ComboBox
+                    Width="280"
+                    ItemsSource="{x:Bind ViewModel.LanguageOptions, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.SelectedLanguage, Mode=TwoWay}"
+                    DisplayMemberPath="DisplayName" />
+                <TextBlock
+                    x:Name="LanguageAppliedText"
+                    Visibility="Collapsed"
+                    Opacity="0.75"
+                    Text="语言已应用。" />
+
                 <TextBlock Text="性能" Style="{StaticResource SubtitleTextBlockStyle}" />
                 <ToggleSwitch
                     Header="性能模式（关闭缩略图 / Probe / 文件夹递归大小）"

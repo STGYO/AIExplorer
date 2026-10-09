@@ -3,6 +3,7 @@ using AIExplorer.Core.Metadata;
 using AIExplorer.Core.Navigation;
 using AIExplorer.Core.Settings;
 using AIExplorer.Core.Shell;
+using AIExplorer_App.Localization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -84,7 +85,7 @@ public partial class BrowserTabViewModel : ObservableObject, IDisposable
     public Func<string, Task>? OpenPathInNewTabAsync { get; set; }
 
     [ObservableProperty]
-    private string title = "新标签";
+    private string title = AppLocalizer.Instance.Get("Tabs_New");
 
     [ObservableProperty]
     private bool isDualPane;
@@ -157,7 +158,7 @@ public partial class BrowserTabViewModel : ObservableObject, IDisposable
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            return "新标签";
+            return AppLocalizer.Instance.Get("Tabs_New");
         }
 
         try

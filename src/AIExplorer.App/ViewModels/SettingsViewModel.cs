@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using AIExplorer.Core.Extensions;
 using AIExplorer.Core.Settings;
+using AIExplorer_App.Localization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
@@ -46,6 +47,12 @@ public partial class FileColorEditItem : ObservableObject
     private string description;
 }
 
+public sealed class LanguageOption
+{
+    public required string Code { get; init; }
+    public required string DisplayName { get; init; }
+}
+
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsService _settings;
@@ -60,6 +67,11 @@ public partial class SettingsViewModel : ObservableObject
 
     public ObservableCollection<ExtensionToggleItem> Extensions { get; } = [];
     public ObservableCollection<FileColorEditItem> FileColors { get; } = [];
+    public ObservableCollection<LanguageOption> LanguageOptions { get; } =
+    [
+        new() { Code = AppLanguage.EnglishUnitedStates, DisplayName = AppLocalizer.Instance.Get("Language_English") },
+        new() { Code = AppLanguage.ChineseSimplified, DisplayName = AppLocalizer.Instance.Get("Language_ChineseSimplified") },
+    ];
 
     [ObservableProperty]
     private bool performanceMode;
@@ -88,6 +100,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string windowBackdrop = WindowBackdropOptions.Mica;
 
+    [ObservableProperty]
+    private LanguageOption? selectedLanguage;
+
     public IReadOnlyList<string> ThemeOptions { get; } = ["Default", "Light", "Dark"];
 
     public IReadOnlyList<string> AccentOptions => AccentPalette.Options;
@@ -107,6 +122,9 @@ public partial class SettingsViewModel : ObservableObject
         WindowBackdrop = WindowBackdropOptions.IsKnown(_settings.Features.WindowBackdrop)
             ? _settings.Features.WindowBackdrop
             : WindowBackdropOptions.Mica;
+        var languageCode = AppLanguage.NormalizeOrDefault(_settings.Features.Language);
+        SelectedLanguage = LanguageOptions.FirstOrDefault(x => string.Equals(x.Code, languageCode, StringComparison.OrdinalIgnoreCase))
+            ?? LanguageOptions.FirstOrDefault(x => x.Code == AppLanguage.EnglishUnitedStates);
 
         Extensions.Clear();
         foreach (var manifest in _extensionHost.Discover())
@@ -144,6 +162,7 @@ public partial class SettingsViewModel : ObservableObject
         _settings.Features.Theme = Theme;
         _settings.Features.AccentColor = AccentColor;
         _settings.Features.WindowBackdrop = WindowBackdrop;
+        _settings.Features.Language = AppLocalizer.Instance.ApplyLanguage(SelectedLanguage?.Code);
 
         foreach (var ext in Extensions)
         {

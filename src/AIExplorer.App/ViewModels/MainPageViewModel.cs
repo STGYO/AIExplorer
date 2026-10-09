@@ -8,6 +8,7 @@ using AIExplorer.Core.Navigation;
 using AIExplorer.Core.Session;
 using AIExplorer.Core.Settings;
 using AIExplorer.Core.Shell;
+using AIExplorer_App.Localization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Windows.Storage.Pickers;
@@ -82,6 +83,14 @@ public partial class MainPageViewModel : ObservableObject
             Orientation = Workspace.Orientation;
         };
         WireSharedRightGroup();
+        AppLocalizer.Instance.LanguageChanged += (_, _) =>
+        {
+            RefreshSearchProviderHint();
+            NavigationPane.Refresh();
+            NavigationPane.LoadRecentPaths();
+            RebuildFavoriteBar();
+            OnPropertyChanged(nameof(FavoriteRoot));
+        };
     }
 
     public ObservableCollection<BrowserTabViewModel> Tabs { get; } = [];
@@ -153,7 +162,7 @@ public partial class MainPageViewModel : ObservableObject
     private SearchResultsViewModel? activeSearch;
 
     [ObservableProperty]
-    private string searchPlaceholder = "搜索文件…";
+    private string searchPlaceholder = AppLocalizer.Instance.Get("Search_Placeholder_Default");
 
     [ObservableProperty]
     private string searchProviderHint = string.Empty;
@@ -757,7 +766,7 @@ public partial class MainPageViewModel : ObservableObject
         var provider = ActiveSearchProvider;
         if (provider is null)
         {
-            SearchPlaceholder = "搜索不可用";
+            SearchPlaceholder = AppLocalizer.Instance.Get("Search_Placeholder_Unavailable");
             SearchProviderHint = string.Empty;
             IsSearchScopeEnabled = false;
             return;
@@ -765,15 +774,17 @@ public partial class MainPageViewModel : ObservableObject
 
         if (provider.ProviderId == "everything")
         {
-            SearchPlaceholder = SearchInCurrentFolder ? "在当前文件夹搜索（Everything）" : "全盘搜索（Everything）";
+            SearchPlaceholder = SearchInCurrentFolder
+                ? AppLocalizer.Instance.Get("Search_Placeholder_Everything_Current")
+                : AppLocalizer.Instance.Get("Search_Placeholder_Everything_Global");
             SearchProviderHint = "Everything";
             IsSearchScopeEnabled = true;
         }
         else
         {
             // 本地搜索仅支持当前文件夹：禁用开关，避免「勾上却取消不了」的错觉
-            SearchPlaceholder = "在当前文件夹搜索（本地）";
-            SearchProviderHint = "本地";
+            SearchPlaceholder = AppLocalizer.Instance.Get("Search_Placeholder_Local_Current");
+            SearchProviderHint = AppLocalizer.Instance.Get("Search_Provider_Local");
             IsSearchScopeEnabled = false;
             if (!SearchInCurrentFolder)
             {
@@ -788,7 +799,9 @@ public partial class MainPageViewModel : ObservableObject
         var provider = ActiveSearchProvider;
         if (provider?.ProviderId == "everything")
         {
-            SearchPlaceholder = value ? "在当前文件夹搜索（Everything）" : "全盘搜索（Everything）";
+            SearchPlaceholder = value
+                ? AppLocalizer.Instance.Get("Search_Placeholder_Everything_Current")
+                : AppLocalizer.Instance.Get("Search_Placeholder_Everything_Global");
             SearchProviderHint = "Everything";
             IsSearchScopeEnabled = true;
             return;
@@ -1198,7 +1211,7 @@ public partial class MainPageViewModel : ObservableObject
 
         ActiveSearch?.Dispose();
         RememberSearchQuery(query);
-        var label = provider.ProviderId == "everything" ? "Everything" : "本地文件名";
+        var label = provider.ProviderId == "everything" ? "Everything" : AppLocalizer.Instance.Get("Search_Provider_LocalName");
         var session = new SearchResultsViewModel(
             query,
             label,
@@ -1326,7 +1339,7 @@ public partial class MainPageViewModel : ObservableObject
     [RelayCommand]
     private async Task AddFavoriteGroupAsync(FavoriteNodeViewModel? parent)
     {
-        await CreateFavoriteGroupAsync(parent, "新建分组");
+        await CreateFavoriteGroupAsync(parent, AppLocalizer.Instance.Get("Favorites_DefaultGroup"));
     }
 
     /// <summary>在指定父分组下创建命名子分组；空名回退默认名。</summary>
@@ -1343,7 +1356,7 @@ public partial class MainPageViewModel : ObservableObject
             parent = parent.Parent ?? FavoriteRoot;
         }
 
-        var groupName = string.IsNullOrWhiteSpace(name) ? "新建分组" : name.Trim();
+        var groupName = string.IsNullOrWhiteSpace(name) ? AppLocalizer.Instance.Get("Favorites_DefaultGroup") : name.Trim();
         var group = parent!.AddGroup(groupName);
         await SaveFavoritesAsync();
         RebuildFavoriteBar();
@@ -1539,9 +1552,9 @@ public partial class MainPageViewModel : ObservableObject
     private static string BuildNestGroupName(string a, string b)
     {
         static string Short(string s) =>
-            string.IsNullOrWhiteSpace(s) ? "收藏" : (s.Length <= 10 ? s : s[..10] + "…");
+            string.IsNullOrWhiteSpace(s) ? AppLocalizer.Instance.Get("Favorites_DefaultRootName") : (s.Length <= 10 ? s : s[..10] + "…");
 
-        return $"{Short(b)} 等";
+        return $"{Short(b)} {AppLocalizer.Instance.Get("Favorites_GroupSuffix")}";
     }
 
     private void ReloadFavoriteTree()

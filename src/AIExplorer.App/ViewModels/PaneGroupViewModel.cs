@@ -3,6 +3,7 @@ using AIExplorer.Core.Files;
 using AIExplorer.Core.Metadata;
 using AIExplorer.Core.Settings;
 using AIExplorer.Core.Shell;
+using AIExplorer_App.Localization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -131,7 +132,7 @@ public partial class PaneGroupViewModel : ObservableObject, IDisposable
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            return "新标签";
+            return AppLocalizer.Instance.Get("Tabs_New");
         }
 
         try
